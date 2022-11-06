@@ -6,11 +6,22 @@ namespace NSI_Prototip
     {
         public static async Task<string> CallUrl(string fullUrl)
         {
-            HttpClient client = new HttpClient();
+            HttpClient client = new();
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13;
             client.DefaultRequestHeaders.Accept.Clear();
-            var response = client.GetStringAsync(fullUrl);
-            return await response;
+            var response = await client.GetStringAsync(fullUrl);
+           
+            return response;
+        }
+
+        public static DateTime? ConvertLocalDatetimeToUtc(DateTime? localDateTime)
+        {
+            if (localDateTime is null)
+                return null;
+
+            TimeZoneInfo tst = TimeZoneInfo.FindSystemTimeZoneById("Central European Standard Time");
+           
+            return TimeZoneInfo.ConvertTimeToUtc(localDateTime.Value, tst);
         }
 
         public enum NewsModelCategory
@@ -20,15 +31,8 @@ namespace NSI_Prototip
             JavniOglas,
             JavniPoziv,
             Obavjestenje,
-            Cestitka
+            Cestitka,
+            Press
         }
-    }
-
-    public class NewsModel
-    {
-        public DateTime Date { get; set; }
-        public int CategoryId { get; set; }
-        public string Heading { get; set; }
-        public string NewsUrl { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using HtmlAgilityPack;
 using System.Globalization;
-using System.Net;
 
 namespace NSI_Prototip
 {
@@ -26,23 +25,22 @@ namespace NSI_Prototip
         {
             var dateOfPublicationHtmlElement = newsHtml.Elements("p").FirstOrDefault();
             var dateOfPublicationString = dateOfPublicationHtmlElement?.InnerText ?? string.Empty;
-            if (DateTime.TryParseExact(dateOfPublicationString,
-                                       "dd'.'MM'.'yyyy'.'", 
-                                       CultureInfo.InvariantCulture,
-                                       DateTimeStyles.None,
-                                       out DateTime dateOfPublication))
-            {
 
-            }
+            DateTime? dateOfPublication = DateTime.TryParseExact(dateOfPublicationString,
+                                                                "dd'.'MM'.'yyyy'.'",
+                                                                CultureInfo.InvariantCulture,
+                                                                DateTimeStyles.None,
+                                                                out DateTime DOP) ? DOP : null;
 
             var headings = newsHtml.Elements("h5").Select(el => el.InnerHtml);
 
             NewsModel newsModel = new()
             {
-                Date = dateOfPublication,
-                CategoryId = KJKPRad.GetNewsCategoryId(headings.First()),
+                Date = ScrapingAndParsingMethods.ConvertLocalDatetimeToUtc(dateOfPublication),
+                CategoryId = GetNewsCategoryId(headings.First()),
                 Heading = string.Join(" ", headings).ToUpper(),
-                NewsUrl = "https://www.rad.com.ba/aktuelno.htm"
+                NewsUrl = "https://www.rad.com.ba/aktuelno.htm",
+                Content = ""
             };
 
             return newsModel;
